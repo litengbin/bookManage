@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	xmlns:tx="http://www.springframework.org/schema/tx">
+
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"></property>
+		<property name="url" value="jdbc:sqlserver://localhost:1433"></property>
+		<property name="username" value="sa"></property>
+		<property name="password" value="123456"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.SQLServerDialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>org/vo/Book.hbm.xml</value>
+				<value>org/vo/Lend.hbm.xml</value>
+				<value>org/vo/Login.hbm.xml</value>
+				<value>org/vo/Student.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="baseDao" class="org.dao.BaseDAO">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!-- 通过继承baseDAO对各Dao进行依赖注入 -->
+	<bean id="bookDao" class="org.dao.impl.BookDaoImpl" parent="baseDao" />
+	<bean id="loginDao" class="org.dao.impl.LoginDaoImpl" parent="baseDao" />
+	<bean id="studentDao" class="org.dao.impl.StudentDaoImpl" parent="baseDao" />
+	<bean id="lendDao" class="org.dao.impl.LendDaoImpl" parent="baseDao" />
+	<!-- 对业务逻辑进行依赖注入 -->
+	<bean id="bookservice" class="org.service.impl.BookServiceImpl">
+		<property name="bookDao" ref="bookDao"></property>
+	</bean>
+	<bean id="loginservice" class="org.service.impl.LoginServiceImpl">
+		<property name="loginDao" ref="loginDao"></property>
+	</bean>
+	<bean id="studentservice" class="org.service.impl.StudentServiceImpl">
+		<property name="studentDao" ref="studentDao"></property>
+	</bean>
+	<bean id="lendservice" class="org.service.impl.LendServiceImpl">
+		<property name="lendDao" ref="lendDao"></property>
+	</bean>
+
+	<bean id="loginAction" class="org.action.LoginAction">
+		<property name="loginservice" ref="loginservice"></property>
+	</bean>
+	<bean id="lendAction" class="org.action.LendAction">
+		<property name="lendservice" ref="lendservice"></property>
+		<property name="bookservice" ref="bookservice"></property>
+		<property name="studentservice" ref="studentservice"></property>
+	</bean>
+	<bean id="bookAction" class="org.action.BookAction">
+		<property name="lendservice" ref="lendservice"></property>
+		<property name="bookservice" ref="bookservice"></property>
+	</bean>
+</beans>

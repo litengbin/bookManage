@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<package name="default" extends="struts-default" namespace="/">
+		<!-- 用户登录 -->
+		<action name="login" class="loginAction">
+			<result name="admin">/admin.jsp</result>
+			<result name="student">/student.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result name="input">/login.jsp</result>
+		</action>
+		<action name="selectBook" class="lendAction" method="selectAllLend">
+			<result name="success">/lend.jsp</result>
+		</action>
+		<action name="lendBook" class="lendAction" method="lendBook">
+			<result name="success">/lend.jsp</result>
+		</action>
+		<action name="book" class="bookAction">
+			<result name="success">/bookmanage.jsp</result>
+			<result name="input">/bookmanage.jsp</result>
+			<interceptor-ref name="defaultStack">
+				<param name="validation.excludeMethods">*</param>
+				<param name="validation.includeMethods">addBook,updateBook</param>
+			</interceptor-ref>
+		</action>
+		<!-- 读取照片 -->
+		<action name="getImage" class="bookAction" method="getImage">
+			<interceptor-ref name="defaultStack">
+				<param name="validation.excludeMethods">*</param>
+				<param name="validation.includeMethods">addBook,updateBook</param>
+			</interceptor-ref>
+		</action>
+	</package>
+	<!-- 设置Web应用编码集,为获取表单提交的中文信息 -->
+	<constant name="struts.il8n.encoding" value="gb2312"></constant>
+	<!-- 指定上传文件的临时保存路径,为上传图书封面照片 -->
+	<constant name="struts.multipart.saveDir" value="/tmp"></constant>
+	<!-- 设置支持动态方法调用,为在页面上用多个功能按钮实现不同的功能 -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="true"></constant>
+</struts> 
